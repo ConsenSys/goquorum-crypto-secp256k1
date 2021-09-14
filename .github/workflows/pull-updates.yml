@@ -1,0 +1,110 @@
+name: Pull updates
+on: 
+  workflow_dispatch:
+    inputs:
+      version:
+        required: true
+        description: New version
+      message:
+        required: true
+        description: Commit message
+jobs:
+  update-local-secp256k1:
+    name: Update local repository
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Pull GoQuorum and update secp256k1
+        env:
+          UPDATE_SECP_GITHUB_TOKEN: ${{ secrets.UPDATE_SECP_GITHUB_TOKEN }}
+          USER_NAME: VGLoic
+          USER_EMAIL: loic.vincent-genod@consensys.net
+        run: |
+          set -e  # if a command fails it stops the execution
+          set -u  # script fails if trying to access to an undefined variable
+
+          # Variables declaration
+          VERSION=${{ github.event.inputs.version }}
+          COMMIT_MESSAGE=${{ github.event.inputs.message }}
+
+          # Check on input format
+          versionRx='^([0-9]+\.){0,2}(\*|[0-9]+)$'
+          if [[ ! $VERSION =~ $versionRx ]]; then
+            echo "Input version does not have the correct input format"
+            exit 1
+          fi
+
+          # Function checking if first version argument is higher than second version argument
+          # Returns 0 if true, 1 otherwise
+          vercomp () {
+
+            if [[ $1 == $2 ]]
+            then
+                return 1
+            fi
+            local IFS=.
+            local i ver1=($1) ver2=($2)
+            # fill empty fields in ver1 with zeros
+            for ((i=${#ver1[@]}; i<${#ver2[@]}; i++))
+            do
+                ver1[i]=0
+            done
+            for ((i=0; i<${#ver1[@]}; i++))
+            do
+                if [[ -z ${ver2[i]} ]]
+                then
+                    # fill empty fields in ver2 with zeros
+                    ver2[i]=0
+                fi
+                if ((10#${ver1[i]} > 10#${ver2[i]}))
+                then
+                    return 0
+                fi
+                if ((10#${ver1[i]} < 10#${ver2[i]}))
+                then
+                    return 1
+                fi
+            done
+            return 0
+          }
+
+          # Checking input version is higher
+          # It is assumed the VERSION is of the form vX.Y.Z
+          # The v is removed in order to be consistent with the format of the VERSION format
+          RAW_LATEST_VERSION=$(git describe --tags --abbrev=0)
+          LATEST_VERSION="${RAW_LATEST_VERSION:1}"
+
+          vercomp $VERSION $LATEST_VERSION || (echo "Version must be higher than the existing one" && exit 1)
+
+          # Cloning GoQuorum repository
+          CLONE_QUORUM_DIR=$(mktemp -d)
+          git config --global user.email "$USER_EMAIL"
+          git config --global user.name "$USER_NAME"
+          git clone --single-branch --branch "master" "https://$USER_NAME:$UPDATE_SECP_GITHUB_TOKEN@github.com/ConsenSys/quorum.git" "$CLONE_QUORUM_DIR"
+
+
+          # Create copy of local with only the files that should not be deleted
+          CLONE_DIR=$(mktemp -d)
+          mv ".git" "$CLONE_DIR"
+          mv ".github" "$CLONE_DIR"
+          mv "README.md" "$CLONE_DIR"
+          mv "go.mod" "$CLONE_DIR"
+          mv "LICENSE" "$CLONE_DIR"
+
+          # Copy contents of GoQuorum crypto/secp256k1 into CLONE_DIR
+          cp -n -ra "$CLONE_QUORUM_DIR"/crypto/secp256k1/. "$CLONE_DIR"
+
+          ls -la "$CLONE_DIR"
+
+          cd "$CLONE_DIR"
+
+          # Checking if there are changes
+          git diff --quiet --exit-code && echo "No changes detected. No update will be done" && exit 1 || echo "Changes detected"
+
+          # Pushing changes and new version
+          git add .
+          git commit --message "$COMMIT_MESSAGE"
+          git tag "v$VERSION"
+          git push origin main
+          git push origin "v$VERSION"
+      
