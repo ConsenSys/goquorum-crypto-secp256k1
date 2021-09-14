@@ -94,8 +94,6 @@ jobs:
           # Copy contents of GoQuorum crypto/secp256k1 into CLONE_DIR
           cp -n -ra "$CLONE_QUORUM_DIR"/crypto/secp256k1/. "$CLONE_DIR"
 
-          ls -la "$CLONE_DIR"
-
           cd "$CLONE_DIR"
 
           # Checking if there are changes
