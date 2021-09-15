@@ -26,8 +26,8 @@ jobs:
           set -u  # script fails if trying to access to an undefined variable
 
           # Variables declaration
-          VERSION=${{ github.event.inputs.version }}
-          COMMIT_MESSAGE=${{ github.event.inputs.message }}
+          VERSION="${{ github.event.inputs.version }}"
+          COMMIT_MESSAGE="${{ github.event.inputs.message }}"
 
           # Git setup
           git config --global user.email "$USER_EMAIL"
@@ -84,8 +84,7 @@ jobs:
 
           # Cloning GoQuorum repository
           CLONE_QUORUM_DIR=$(mktemp -d)
-          # Note: The following repository URL and branch are for test purposes, the master branch of github.com/ConsenSys/quorum will be used after successful testing
-          git clone --single-branch --branch "test-update-crypto-secp256k1" "https://$USER_NAME:$UPDATE_SECP_GITHUB_TOKEN@github.com/VGLoic/quorum.git" "$CLONE_QUORUM_DIR"
+          git clone --single-branch --branch "master" "https://$USER_NAME:$UPDATE_SECP_GITHUB_TOKEN@github.com/ConsenSys/quorum.git" "$CLONE_QUORUM_DIR"
 
 
           # Create copy of local with only the files that should not be deleted
