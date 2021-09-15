@@ -14,6 +14,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
       - name: Pull GoQuorum and update secp256k1
         env:
           UPDATE_SECP_GITHUB_TOKEN: ${{ secrets.UPDATE_SECP_GITHUB_TOKEN }}
@@ -26,6 +28,10 @@ jobs:
           # Variables declaration
           VERSION=${{ github.event.inputs.version }}
           COMMIT_MESSAGE=${{ github.event.inputs.message }}
+
+          # Git setup
+          git config --global user.email "$USER_EMAIL"
+          git config --global user.name "$USER_NAME"
 
           # Check on input format
           versionRx='^([0-9]+\.){0,2}(\*|[0-9]+)$'
@@ -78,8 +84,6 @@ jobs:
 
           # Cloning GoQuorum repository
           CLONE_QUORUM_DIR=$(mktemp -d)
-          git config --global user.email "$USER_EMAIL"
-          git config --global user.name "$USER_NAME"
           git clone --single-branch --branch "master" "https://$USER_NAME:$UPDATE_SECP_GITHUB_TOKEN@github.com/ConsenSys/quorum.git" "$CLONE_QUORUM_DIR"
 
 
