@@ -6,4 +6,4 @@ It is licensed under the 3-Clause BSD.
 
 ## Contributing
 
-Updates of this repositoy can only be fully based on the `crypto/secp256k1` sub-directory of [GoQuorum repository](https://github.com/ConsenSys/quorum).
+Updates of this repositoy can only be fully based on the `crypto/secp256k1` [sub-directory](https://github.com/ConsenSys/quorum/tree/master/crypto/secp256k1) of [GoQuorum repository](https://github.com/ConsenSys/quorum).
