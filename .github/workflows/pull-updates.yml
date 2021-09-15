@@ -19,8 +19,8 @@ jobs:
       - name: Pull GoQuorum and update secp256k1
         env:
           UPDATE_SECP_GITHUB_TOKEN: ${{ secrets.UPDATE_SECP_GITHUB_TOKEN }}
-          USER_NAME: VGLoic
-          USER_EMAIL: loic.vincent-genod@consensys.net
+          USER_NAME: ${{ secrets.UPDATE_SECP_GITHUB_USER_NAME }}
+          USER_EMAIL: ${{ secrets.UPDATE_SECP_GITHUB_USER_EMAIL }}
         run: |
           set -e  # if a command fails it stops the execution
           set -u  # script fails if trying to access to an undefined variable
