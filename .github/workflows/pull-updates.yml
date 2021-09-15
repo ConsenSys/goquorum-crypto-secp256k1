@@ -26,8 +26,8 @@ jobs:
           set -u  # script fails if trying to access to an undefined variable
 
           # Variables declaration
-          VERSION=${{ github.event.inputs.version }}
-          COMMIT_MESSAGE=${{ github.event.inputs.message }}
+          VERSION="${{ github.event.inputs.version }}"
+          COMMIT_MESSAGE="${{ github.event.inputs.message }}"
 
           # Git setup
           git config --global user.email "$USER_EMAIL"
