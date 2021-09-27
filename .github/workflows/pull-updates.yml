@@ -94,6 +94,7 @@ jobs:
           mv "README.md" "$CLONE_DIR"
           mv "go.mod" "$CLONE_DIR"
           mv "LICENSE" "$CLONE_DIR"
+          mv "dummy.go" "$CLONE_DIR"
 
           # Copy contents of GoQuorum crypto/secp256k1 into CLONE_DIR
           cp -n -ra "$CLONE_QUORUM_DIR"/crypto/secp256k1/. "$CLONE_DIR"
